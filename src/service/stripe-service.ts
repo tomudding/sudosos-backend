@@ -53,11 +53,24 @@ export default class StripeService {
    * @param balance
    * @param request
    */
-  public static validateStripeRequestAmount(balance: BalanceResponse, request: StripeRequest): boolean {
+  public static validateStripeRequestMinimumAmount(balance: BalanceResponse, request: StripeRequest): boolean {
     const MIN_TOPUP = process.env.MIN_TOPUP || 1000;
 
     // Check if top up is enough
     if (balance.amount.amount >= 0 && request.amount.amount >= MIN_TOPUP) return true;
+    return request.amount.amount === -1 * balance.amount.amount;
+  }
+
+  /**
+   * Topup should be at most 150 euros minus user's positive balance or user's negative balance.
+   * @param balance
+   * @param request
+   */
+  public static validateStripeRequestMaximumAmount(balance: BalanceResponse, request: StripeRequest): boolean {
+    const MAX_TOPUP = process.env.MAX_TOPUP || 15000;
+
+    // Check if top up is not too much
+    if (balance.amount.amount >= 0 && MAX_TOPUP >= (balance.amount.amount + request.amount.amount)) return true;
     return request.amount.amount === -1 * balance.amount.amount;
   }
 
