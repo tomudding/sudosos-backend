@@ -75,7 +75,7 @@ export default class StripeController extends BaseController {
       const amount = Dinero({ ...request.amount } as DineroObject);
       const balance = await BalanceService.getBalance(req.token.user.id);
       if (!StripeService.validateStripeRequestAmount(balance, request)) {
-        res.status(422).json({ error: 'Top-up amount is to low' });
+        res.status(422).json({ error: 'Top-up amount is too low' });
         return;
       }
 

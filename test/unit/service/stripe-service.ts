@@ -282,6 +282,22 @@ describe('validateStripeRequestAmount', async () => {
     const res = StripeService.validateStripeRequestAmount(balance, request);
     expect(res).to.be.true;
   });
+  it('should accept 10 euros if user balance is exactly zero', () => {
+    const balance = { amount: {
+      amount: 0,
+      currency: 'EUR',
+      precision: 2,
+    } } as BalanceResponse;
+    const request: StripeRequest = {
+      amount: {
+        amount: 1000,
+        currency: 'EUR',
+        precision: 2,
+      },
+    };
+    const res = StripeService.validateStripeRequestAmount(balance, request);
+    expect(res).to.be.true;
+  });
   it('should disallow 9 euros if user is in the positive', () => {
     const balance = { amount: {
       amount: 1,
@@ -298,10 +314,26 @@ describe('validateStripeRequestAmount', async () => {
     const res = StripeService.validateStripeRequestAmount(balance, request);
     expect(res).to.be.false;
   });
-  it('should accept 10 euros if user less than 10 euros in the negative', () => {
+  it('should disallow 9 euros if user balance is exactly zero', () => {
+    const balance = { amount: {
+      amount: 0,
+      currency: 'EUR',
+      precision: 2,
+    } } as BalanceResponse;
+    const request: StripeRequest = {
+      amount: {
+        amount: 900,
+        currency: 'EUR',
+        precision: 2,
+      },
+    };
+    const res = StripeService.validateStripeRequestAmount(balance, request);
+    expect(res).to.be.false;
+  });
+  it('should allow 10 euros if user is 10 euros in the negative', () => {
     const balance = {
       amount: {
-        amount: -800,
+        amount: -1000,
         currency: 'EUR',
         precision: 2,
       },
@@ -316,21 +348,59 @@ describe('validateStripeRequestAmount', async () => {
     const res = StripeService.validateStripeRequestAmount(balance, request);
     expect(res).to.be.true;
   });
-  it('should allow 11 euros if user more than 10 euros in the negative', () => {
-    const balance = { amount: {
-      amount: -1800,
-      currency: 'EUR',
-      precision: 2,
-    } } as BalanceResponse;
+  it('should allow 5 euros if user is 5 euros in the negative', () => {
+    const balance = {
+      amount: {
+        amount: -500,
+        currency: 'EUR',
+        precision: 2,
+      },
+    } as BalanceResponse;
     const request: StripeRequest = {
       amount: {
-        amount: 1100,
+        amount: 500,
         currency: 'EUR',
         precision: 2,
       },
     };
     const res = StripeService.validateStripeRequestAmount(balance, request);
     expect(res).to.be.true;
+  });
+  it('should disallow 15 euros if user is 14 euros in the negative', () => {
+    const balance = {
+      amount: {
+        amount: -1400,
+        currency: 'EUR',
+        precision: 2,
+      },
+    } as BalanceResponse;
+    const request: StripeRequest = {
+      amount: {
+        amount: 1500,
+        currency: 'EUR',
+        precision: 2,
+      },
+    };
+    const res = StripeService.validateStripeRequestAmount(balance, request);
+    expect(res).to.be.false;
+  });
+  it('should disallow 13 euros if user is 14 euros in the negative', () => {
+    const balance = {
+      amount: {
+        amount: -1400,
+        currency: 'EUR',
+        precision: 2,
+      },
+    } as BalanceResponse;
+    const request: StripeRequest = {
+      amount: {
+        amount: 1300,
+        currency: 'EUR',
+        precision: 2,
+      },
+    };
+    const res = StripeService.validateStripeRequestAmount(balance, request);
+    expect(res).to.be.false;
   });
   it('should allow 8,33 euros if user is -8,33', () => {
     const balance = { amount: {

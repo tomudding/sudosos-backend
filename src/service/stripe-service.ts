@@ -49,7 +49,7 @@ export default class StripeService {
   }
 
   /**
-   * Topup should be at least 10 euros or the users negative balance.
+   * Topup should be at least 10 euros or the user's negative balance.
    * @param balance
    * @param request
    */
@@ -57,7 +57,7 @@ export default class StripeService {
     const MIN_TOPUP = process.env.MIN_TOPUP || 1000;
 
     // Check if top up is enough
-    if (request.amount.amount >= MIN_TOPUP) return true;
+    if (balance.amount.amount >= 0 && request.amount.amount >= MIN_TOPUP) return true;
     return request.amount.amount === -1 * balance.amount.amount;
   }
 
